@@ -1,25 +1,26 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from datetime import datetime
+
+from datetime import datetime
+
+day = datetime.today().strftime('%Y%m%d')
 
 page = requests.get("https://forecast.weather.gov/MapClick.php?lon=-85.96042156219481&lat=31.78950142221656")
 
 soup = BeautifulSoup(page.content, 'html.parser')
 week = soup.find(id='seven-day-forecast-body')
 items = (week.find_all(class_='tombstone-container'))
+curent_cond = soup.find(id='current-conditions-body')
 
-period_names = [item.find(class_='period-name').get_text() for item in items]
-short_desc = [item.find(class_='short-desc').get_text() for item in items]
-temp = [item.find(class_='temp').get_text() for item in items]
+cur_temp = curent_cond.find(class_='myforecast-current-lrg').get_text()
+cur_forecast = curent_cond.find(class_="myforecast-current").get_text()
+print(cur_temp)
+print(cur_forecast)
 
-weather_stuff = pd.DataFrame(
-    {
-        'period': period_names,
-        'short_desc': short_desc,
-        'temp': temp,
-    }
-)
+line = {'day': day,
+        'condition': cur_forecast,
+        'temp': cur_temp, }
 
-print(weather_stuff)
-
-weather_stuff.to_csv('result.csv')
+print(line)
